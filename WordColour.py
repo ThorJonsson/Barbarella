@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pdb
+from tqdm import tqdm
 
 # Gets an hdf file of reddit data
 def load(filename):
@@ -45,10 +46,13 @@ def word_vec(word, dictionary):
     return "Word not found"
 
 # Make a vocabulary, this will make looking up words faster
-def build_glove_vocab(dictionary = 'glove.6B.50d.txt'):
+def build_glove_vocab(dictionary = 'data/wordvecs/glove.6B.50d.txt'):
     GloVe = []
     with open(dictionary) as file_:
-        for line in file_:
+        for line in tqdm(file_):
+            # To deal with empty lines
+            if line == '\n':
+                continue
             word = line.split(' ',1)[0]
             line = line.strip('\n')
             vector = line.split(' ',1)[1]
@@ -153,21 +157,27 @@ def SequenceofWordsColour(word_seq):
 # To find the nearest neighbors for words with color we need to make
 # a matrix that contains all word vectors of the words found in LexiChrome
 # http://stackoverflow.com/questions/20083098/improve-pandas-pytables-hdf5-table-write-performance
-def LexiChromeVocab(vec_dict = 'wordvecs/glove.6B.50d.txt',\
-                    col_dict = 'NRC-color-lexicon-senselevel-v0.92.txt'):
+def LexiChromeVocab(vec_dict = 'data/wordvecs/glove.6B.50d.txt',\
+                    col_dict = 'data/LexiChrome/NRC-color-lexicon-senselevel-v0.92.txt',\
+                    colour_list=['black', 'brown', 'white', 'grey',\
+                              'pink', 'red','orange', 'yellow',\
+                              'green', 'blue', 'purple', 'none']):
 
     # We go through the lexichrome data and find the word vector pertaining to
     # each entry, we store this in a list of dicts,
     listofLexiChrome = []
     i = 0
     with open(col_dict) as file_:
-        for line in file_:
+        for line in tqdm(file_):
             line_s = line.split('\t',3)
             dict_word = line_s[0].split('--',1)[0]
             vec = word_vec(dict_word,vec_dict)
-            listofLexiChrome.append({'word': dict_word, 'GloVe Vector': vec})
-            i +=1
-            print(i)
+            colour = find_word_colour(dict_word, col_dict)
+            col_vec = colour_vec(colour,colour_list)
+            listofLexiChrome.append({'word': dict_word,\
+                                     'GloVe Vector': vec,\
+                                     'Colour': colour,\
+                                     'Colour Vector': col_vec})
     return pd.DataFrame(listofLexiChrome)
 
 
