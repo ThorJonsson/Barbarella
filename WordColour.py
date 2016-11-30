@@ -22,7 +22,7 @@ def colour_vec(colour, list_o_colours):
         """ Creates a one hot vector for colours """
         c_filter = lambda x, y: x == y
 
-        """ Creates one-hot vector to represent colours """ 
+        """ Creates one-hot vector to represent colours """
         return  [int(c_filter(x, colour)) for x in list_o_colours]
     if type(colour) is dict:
         col_vec = [0]*len(list_o_colours)
@@ -30,7 +30,7 @@ def colour_vec(colour, list_o_colours):
             for key in colour:
                 if(key == val):
                     col_vec[idx] = colour[key]
-    # Normalize vector to have magnitude of 1
+    # Consider the vector elements as probabilities which sum up to 1
     col_vec = [col_vec[x]/sum(col_vec) for x,val in enumerate(col_vec)]
     return col_vec
 
@@ -45,6 +45,12 @@ def word_vec(word, dictionary):
                 return  line.split(' ',1)[1]
     return "Word not found"
 
+def normalize(x):
+    x_norm = np.zeros(x.shape)
+    d = (np.sum(x ** 2)**(0.5))
+    x_norm = (x/d)
+    return x_norm
+
 # Make a vocabulary, this will make looking up words faster
 def build_glove_vocab(dictionary = 'data/wordvecs/glove.6B.50d.txt'):
     GloVe = []
@@ -56,6 +62,8 @@ def build_glove_vocab(dictionary = 'data/wordvecs/glove.6B.50d.txt'):
             word = line.split(' ',1)[0]
             line = line.strip('\n')
             vector = line.split(' ',1)[1]
+            x = np.array(vector.split(' '),dtype=float)
+            vector = normalize(x)
             GloVe.append({'word' : word, 'vector': vector})
 
     return pd.DataFrame(GloVe)
@@ -179,6 +187,48 @@ def LexiChromeVocab(vec_dict = 'data/wordvecs/glove.6B.50d.txt',\
                                      'Colour': colour,\
                                      'Colour Vector': col_vec})
     return pd.DataFrame(listofLexiChrome)
+
+# From Stanford GloVe
+#def distance(W, vocab, ivocab, input_term):
+#    for idx, term in enumerate(input_term.split(' ')):
+#        if term in vocab:
+#            print('Word: %s  Position in vocabulary: %i' % (term, vocab[term]))
+#            if idx == 0:
+#                vec_result = np.copy(W[vocab[term], :])
+#            else:
+#                vec_result += W[vocab[term], :] 
+#        else:
+#            print('Word: %s  Out of dictionary!\n' % term)
+#            return
+#
+#    vec_norm = np.zeros(vec_result.shape)
+#    d = (np.sum(vec_result ** 2,) ** (0.5))
+#    vec_norm = (vec_result.T / d).T
+#
+#    dist = np.dot(W, vec_norm.T)
+#
+#    for term in input_term.split(' '):
+#        index = vocab[term]
+#        dist[index] = -np.Inf
+#
+#    a = np.argsort(-dist)[:N]
+#
+#    print("\n                               Word       Cosine distance\n")
+#    print("---------------------------------------------------------\n")
+#    for x in a:
+#        print("%35s\t\t%f\n" % (ivocab[x], dist[x]))
+#
+#
+#if __name__ == "__main__":
+#    N = 100;          # number of closest words that will be shown
+#    W, vocab, ivocab = generate()
+#    while True:
+#        input_term = raw_input("\nEnter word or sentence (EXIT to break): ")
+#        if input_term == 'EXIT':
+#            break
+#        else:
+#            distance(W, vocab, ivocab, input_term)
+#
 
 
 # Color mixing
