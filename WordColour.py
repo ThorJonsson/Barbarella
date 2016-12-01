@@ -9,11 +9,27 @@ def load(filename):
     Redditdf = pd.read_hdf(path + filename)
     return Redditdf
 
-def get_subreddit(subreddit_name):
-    subredditdf =  Redditdf[(Reddit.subreddit == subreddit_name)].reset_index()
-    return subredditdf
+# It is very non-trivial to obtain temporal relation in reddit data
+
+# Instead we propose to reconstruct each comment - thus obtaining a context
+# vector
+
+# 
+
+# Sort values X.sort_values(['created_utc'],ascending=[True], inplace = True)
+
+# Get column value and reset index Redditdf[(Reddit.subreddit == subreddit_name)].reset_index()
+
+# Most frequent in a given column AskReddit['link_id'].value_counts().idxmax()
 
 # Objective, get a comment with associated colors and wordvectors
+def colorize_comment():
+    Reddit_df = load('CommentsMay2015_size2p_22_0')
+    # Get list of comments
+    Comments = Reddit_df['body'].tolist()
+    # Go through comment and get a sequence of GloVe vectors
+    # Here we need to preserve order so we make a list of numpy arrays
+    
 
 
 # Code that aims to import words and colours
