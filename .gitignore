@@ -1,3 +1,5 @@
 data/
 *.sw*
 *.hdf
+*.pcl
+*.pyc

@@ -1,0 +1,3 @@
+[submodule "seq2seq/blogs_data"]
+	path = seq2seq/blogs_data
+	url = https://github.com/spitis/blogs_data.git

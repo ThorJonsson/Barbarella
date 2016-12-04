@@ -29,7 +29,7 @@ def colorize_comment():
     Comments = Reddit_df['body'].tolist()
     # Go through comment and get a sequence of GloVe vectors
     # Here we need to preserve order so we make a list of numpy arrays
-    
+
 
 
 # Code that aims to import words and colours
@@ -205,46 +205,46 @@ def LexiChromeVocab(vec_dict = 'data/wordvecs/glove.6B.50d.txt',\
     return pd.DataFrame(listofLexiChrome)
 
 # From Stanford GloVe
-#def distance(W, vocab, ivocab, input_term):
-#    for idx, term in enumerate(input_term.split(' ')):
-#        if term in vocab:
-#            print('Word: %s  Position in vocabulary: %i' % (term, vocab[term]))
-#            if idx == 0:
-#                vec_result = np.copy(W[vocab[term], :])
-#            else:
-#                vec_result += W[vocab[term], :] 
-#        else:
-#            print('Word: %s  Out of dictionary!\n' % term)
-#            return
-#
-#    vec_norm = np.zeros(vec_result.shape)
-#    d = (np.sum(vec_result ** 2,) ** (0.5))
-#    vec_norm = (vec_result.T / d).T
-#
-#    dist = np.dot(W, vec_norm.T)
-#
-#    for term in input_term.split(' '):
-#        index = vocab[term]
-#        dist[index] = -np.Inf
-#
-#    a = np.argsort(-dist)[:N]
-#
-#    print("\n                               Word       Cosine distance\n")
-#    print("---------------------------------------------------------\n")
-#    for x in a:
-#        print("%35s\t\t%f\n" % (ivocab[x], dist[x]))
-#
-#
-#if __name__ == "__main__":
-#    N = 100;          # number of closest words that will be shown
-#    W, vocab, ivocab = generate()
-#    while True:
-#        input_term = raw_input("\nEnter word or sentence (EXIT to break): ")
-#        if input_term == 'EXIT':
-#            break
-#        else:
-#            distance(W, vocab, ivocab, input_term)
-#
+def distance(W, vocab, ivocab, input_term):
+    for idx, term in enumerate(input_term.split(' ')):
+        if term in vocab:
+            print('Word: %s  Position in vocabulary: %i' % (term, vocab[term]))
+            if idx == 0:
+                vec_result = np.copy(W[vocab[term], :])
+            else:
+                vec_result += W[vocab[term], :] 
+        else:
+            print('Word: %s  Out of dictionary!\n' % term)
+            return
+
+    vec_norm = np.zeros(vec_result.shape)
+    d = (np.sum(vec_result ** 2,) ** (0.5))
+    vec_norm = (vec_result.T / d).T
+
+    dist = np.dot(W, vec_norm.T)
+
+    for term in input_term.split(' '):
+        index = vocab[term]
+        dist[index] = -np.Inf
+
+    a = np.argsort(-dist)[:N]
+
+    print("\n                               Word       Cosine distance\n")
+    print("---------------------------------------------------------\n")
+    for x in a:
+        print("%35s\t\t%f\n" % (ivocab[x], dist[x]))
+
+
+if __name__ == "__main__":
+    N = 100;          # number of closest words that will be shown
+    W, vocab, ivocab = generate()
+    while True:
+        input_term = raw_input("\nEnter word or sentence (EXIT to break): ")
+        if input_term == 'EXIT':
+            break
+        else:
+            distance(W, vocab, ivocab, input_term)
+
 
 
 # Color mixing
