@@ -3,3 +3,4 @@ data/
 *.hdf
 *.pcl
 *.pyc
+*.h5

@@ -14,7 +14,9 @@ def load(filename):
 # Instead we propose to reconstruct each comment - thus obtaining a context
 # vector
 
-# 
+
+# Returns vector corresponding to a word
+# GloVe[(GloVe.word == 'just')].vector.item()
 
 # Sort values X.sort_values(['created_utc'],ascending=[True], inplace = True)
 
@@ -22,6 +24,30 @@ def load(filename):
 
 # Most frequent in a given column AskReddit['link_id'].value_counts().idxmax()
 
+"""
+Desc: Gets GloVe vectors for a given list of words
+Input: List of tokenized lower case words
+Output: List of corresponding GloVe vectors
+"""
+def GloVeComment(word_list):
+    # Generate small dataframe containing the words we need
+    comment_df = GloVe[GloVe['word'].isin(word_list)]
+    if len(comment_df) != len(word_list):
+        print('Comment does not have a complete GloVe representation')
+    # The dataframe is in a different order so we query words individually
+    glove_list = []
+    # loop to preserve order
+    for w in word_list:
+        # Get vector from small dataframe
+        comment_df[(GloVe.word == w)].vector.item()
+        glove_list.append(w)
+
+    return glove_list
+
+"""
+Desc: Given a subreddit it loads a thread
+
+"""
 # Objective, get a comment with associated colors and wordvectors
 def colorize_comment():
     Reddit_df = load('CommentsMay2015_size2p_22_0')
