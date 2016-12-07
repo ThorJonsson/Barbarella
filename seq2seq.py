@@ -2,43 +2,49 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import pandas as pd 
-
+import pdb
 from sklearn.neighbors import NearestNeighbors, DistanceMetric
 from scipy.spatial.distance import cosine
 
 from keras.layers import Dense, LSTM, Embedding, merge, Input, Masking
 from keras import objectives
-from keras import optimizers.Adam
+from keras.optimizers import Adam
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Model
-from keras.preproccessing import sequence 
-
-
+from keras.preprocessing import sequence
+import nltk
+nltk.data.path.append('/mnt/data/datasets/nltk_data/')
 # Input hullaballoo
-reddit_df = pd.read_hdf("")
 EMBEDDING_DIM = 50
 MAX_LENGTH = 100
 INPUT_FILE = "/mnt/data/datasets/RedditComments/Reddit4Reconstruction.pcl"
-GLOVE_FILE = ""
-
+GLOVE_FILE = "/mnt/data/datasets/RedditComments/Barbarella/wordvecs/glove.6B.50d.txt"
+print('Reading in reddit data')
 df = pd.read_pickle(INPUT_FILE)
 
-X_train = df['body'];
-y_train_class = df['subreddit']
+X_train = df['tokenized'][:10000]
+
+y_train_class = df['subreddit'][:10000]
 
 print(len(X_train))
 
 
 # Pad the input sequences ro be uniform length
-X_train = sequence.pad_sequences(X_train, maxlen=MAX_LENGTH)
 # y_train = sequence.pad_sequences(y_train, maxlen=MAX_LENGTH)
 
 # Create dictionary of all words in and vectors
 embeddings_index = {}
 f = open(GLOVE_FILE)
+cnt = 0
 for line in f:
+    cnt +=1
+    if cnt > 10000:
+        break
+    if line == '\n':
+        continue
     values = line.split()
+    #pdb.set_trace()
     word = values[0]
     coefs = np.asarray(values[1:], dtype='float32')
     embeddings_index[word] = coefs
@@ -46,54 +52,38 @@ f.close()
 
 print('Found %s word vectors.' % len(embeddings_index))
 
-# Compute the embedding matrix  
-embedding_matrix = np.zeros((len(word_index) + 1, EMBEDDING_DIM))
-for word, i in word_index.items():
-    embedding_vector = embeddings_index.get(word)
+# Compute the embedding matrix
+embedding_matrix = np.zeros((10000, EMBEDDING_DIM))
+
+inv_vocab = {}
+for idx,key in enumerate(embeddings_index):
+    embedding_vector = embeddings_index.get(key)
     if embedding_vector is not None:
         # words not found in embedding index will be all-zeros.
-        embedding_matrix[i] = embedding_vector
+        #pdb.set_trace()
+        embedding_matrix[idx + 1] = embedding_vector
+        inv_vocab[key] = idx + 1
 
-"""
-
-# Create LSTM encoder and decoder for sequence of Word Vectors
-model = Sequential()
-
-model.add(LSTM(64, input_dim=EMBEDDING_DIM, 
-               activation='relu', 
-               dropout_W=0.1, dropout_U=0.1, 
-               return_sequences=True))
-model.add(LSTM(100, activation='relu', 
-               dropout_W=0.1, dropout_U=0.1, 
-               return_sequences=True))
-
-adam = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
-model.compile(loss='cosine_proximity', optimizer=adam)
-
-model.fit(X_train, X_train, 
-          n_epoch=100,
-          batch_size=50, validation_split=0.1)
-"""
-
+X_train = sequence.pad_sequences(X_train, maxlen=MAX_LENGTH)
 # Create LSTM encoder and decoder for sequence of Word Vectors
 
 input_layer = Input(shape=(MAX_LENGTH, EMBEDDING_DIM), dtype='float32', name='input_layer')
 
-embedding = Embedding(input_dim=len(word_index) + 2,
+embedding = Embedding(input_dim=len(10000) + 2,
                       output_dim=EMBEDDING_DIM,
                       input_length=MAX_LENGTH,
                       weights=[embedding_matrix],
                       mask_zero=True,
                       trainable=False, name='embedding')(input_layer)
 
-encoder = LSTM(64, 
-               activation='relu', 
-               dropout_W=0.1, dropout_U=0.1, 
+encoder = LSTM(64,
+               activation='relu',
+               dropout_W=0.1, dropout_U=0.1,
                return_sequences=True, name='encoder')(embedding)
 
-output_layer = LSTM(100, activation='relu', 
-                    dropout_W=0.1, dropout_U=0.1, 
-                    return_sequences=True, name='output_layer')(input_layer)
+output_layer = LSTM(100, activation='relu',
+                    dropout_W=0.1, dropout_U=0.1,
+                    return_sequences=True, name='output_layer')(encoder)
 
 x = Dense(128, activation='relu')(input_layer)
 class_layer = Dense(128, activation='softmax', name='class_layer')(x)
