@@ -19,15 +19,20 @@ from keras.preproccessing import sequence
 reddit_df = pd.read_hdf("")
 EMBEDDING_DIM = 50
 MAX_LENGTH = 100
-INPUT_DIR = ""
+INPUT_FILE = "/mnt/data/datasets/RedditComments/Reddit4Reconstruction.pcl"
 GLOVE_FILE = ""
+
+df = pd.read_pickle(INPUT_FILE)
+
+X_train = df['body'];
+y_train_class = df['subreddit']
 
 print(len(X_train))
 
 
 # Pad the input sequences ro be uniform length
 X_train = sequence.pad_sequences(X_train, maxlen=MAX_LENGTH)
-y_train = sequence.pad_sequences(y_train, maxlen=MAX_LENGTH)
+# y_train = sequence.pad_sequences(y_train, maxlen=MAX_LENGTH)
 
 # Create dictionary of all words in and vectors
 embeddings_index = {}
@@ -100,7 +105,7 @@ model.compile(optimizer=adam,
               loss_weights=[1., 1.])
 
 model.fit({'input_layer': X_train}, 
-          {'output_layer': y_train, 'class_layer': y_train_class},
+          {'output_layer': X_train, 'class_layer': y_train_class},
           nb_epochs=100, batch_size=32)
 
 # Create NN for LSTM output to get the closest approximate word vector 
