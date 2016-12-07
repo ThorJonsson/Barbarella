@@ -59,7 +59,9 @@ def colorize_comment():
 
 
 # Code that aims to import words and colours
-def colour_vec(colour, list_o_colours):
+def colour_vec(colour, list_o_colours=['black', 'brown', 'white', 'grey',\
+                                       'pink', 'red','orange', 'yellow',\
+                                       'green', 'blue', 'purple', 'none']):
     if type(colour) is str:
         """ Creates a one hot vector for colours """
         c_filter = lambda x, y: x == y
@@ -222,12 +224,26 @@ def LexiChromeVocab(vec_dict = 'data/wordvecs/glove.6B.50d.txt',\
             line_s = line.split('\t',3)
             dict_word = line_s[0].split('--',1)[0]
             vec = word_vec(dict_word,vec_dict)
+            try: 
+                temp = list(vec.split(' '))
+                if(temp == 'Word'):
+                    continue
+            except ValueError:
+                continue
+            try:
+                temp = list(map(float, temp))
+            except ValueError:
+                continue
+            vec = np.asarray(temp)
             colour = find_word_colour(dict_word, col_dict)
-            col_vec = colour_vec(colour,colour_list)
-            listofLexiChrome.append({'word': dict_word,\
-                                     'GloVe Vector': vec,\
-                                     'Colour': colour,\
-                                     'Colour Vector': col_vec})
+            col_vec = np.asarray(colour_vec(colour))
+            listofLexiChrome.append({'word': dict_word, 
+                                     'GloVe Vector': vec, 
+                                     'colour': colour, 
+                                     'Colour Vec': col_vec})
+            i +=1
+            if(not (i % 1000)):
+                print(i)
     return pd.DataFrame(listofLexiChrome)
 
 # From Stanford GloVe
@@ -274,6 +290,7 @@ if __name__ == "__main__":
 
 
 # Color mixing
+
 # http://stackoverflow.com/questions/1351442/is-there-an-algorithm-for-color-mixing-that-works-like-mixing-real-colors
 
 
