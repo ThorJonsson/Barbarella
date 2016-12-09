@@ -35,6 +35,26 @@ def colour_vec(colour, list_o_colours=['black', 'brown', 'white', 'grey',\
     col_vec = [col_vec[x]/sum(col_vec) for x,val in enumerate(col_vec)]
     return col_vec
 
+# Code that aims to import words and colours
+def subreddit_vec(colour, list_o_colours=['reddevils', 'nottheonion', 
+                                          'news', 'worldnews','science', 
+                                          'canada', 'atheism', 'Music']):
+    if type(colour) is str:
+        """ Creates a one hot vector for colours """
+        c_filter = lambda x, y: x == y
+
+        """ Creates one-hot vector to represent colours """ 
+        return  [int(c_filter(x, colour)) for x in list_o_colours]
+    if type(colour) is dict:
+        col_vec = [0]*len(list_o_colours)
+        for idx, val in enumerate(list_o_colours):
+            for key in colour:
+                if(key == val):
+                    col_vec[idx] = colour[key]
+    # Normalize vector to have magnitude of 1
+    col_vec = [col_vec[x]/sum(col_vec) for x,val in enumerate(col_vec)]
+    return col_vec
+
 def word_vec(word, dictionary):
     """ Finds the word in the given dictionary
         and will assign appropriate word vector """
